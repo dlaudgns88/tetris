@@ -1,0 +1,493 @@
+
+ <!DOCrandomValue html>
+ <html lang="en">
+ 
+ <head>
+     <meta charset="UTF-8">
+     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>테트리스</title>
+     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+ 
+ </head>
+ <style>
+     #gamewrap {
+         /* 화면구성이 중앙에 위치하도록 설정 */
+         position: absolute;
+         width: 360px;
+         height: 650px;
+         left: 50%;
+         top: 50%;
+         transform: translate(-50%, -50%);
+         border: 1px solid;
+     }
+ 
+     #headerWrap {
+         width: 360px;
+         height: 70px;
+        
+     }
+ 
+     #nextItem {
+         width: 100px;
+         height: 60px;
+         margin-top: 1px;
+         margin-left: 5px;
+         border: 1px solid;
+         float: left;
+     }
+    
+     #nextItemCanvas{
+         width: 100px;
+         height: 60px;
+     }
+ 
+     #score {
+         width: 130px;
+         height: 25px;
+         margin-top: 5px;
+         margin-left: 220px;
+ 
+         border: 1px solid;
+         text-align: center;
+     }
+ 
+     #scoreTitle {
+         margin-left: 5%;
+         width: 25%;
+         height: 100px;
+         float: left;
+     }
+ 
+     #scoreData {
+         width: 65%;
+         height: 100%;
+         margin-right: 5%;
+         float: left;
+         text-align: right;
+     }
+ 
+     #canvas {
+         width: 360px;
+         height: 480px;
+     }
+ 
+ 
+     #btwrap {
+         width: 360px;
+         height: 70px;
+         border-top: 1px solid;
+     }
+ 
+     .bt {
+         margin-top: 10px;
+         margin-left: 10px;
+         width: 50px;
+         height: 30px;
+         font-size: medium;
+     }
+ </style>
+ 
+ <body>
+    
+ 
+     <div id="gamewrap">
+ 
+         <div id="headerWrap">
+             <!--다음블록 표시 영역-->
+             <div id="nextItem">
+                 <canvas id="nextItemCanvas"></canvas>
+             </div>
+             <!--점수 표시 영역-->
+             <div id="score">
+                 <div id="scoreTitle">Score</div>
+                 <div id="scoreData">0</div>
+             </div>
+         </div>
+         <!--캔버스 영역-->
+         <canvas id="canvas">
+         </canvas>
+          <!--버튼 영역-->
+          <div id="btwrap">
+             <button class="bt" id="left">좌</button>
+             <button class="bt" id="right">우</button>
+             <button class="bt" id="rotate">회전</button>
+             <button class="bt" id="down">하강</button>
+         </div>
+         <script>
+             var scoreData = document.getElementById('scoreData');
+             var nextItem = document.getElementById("nextItemCanvas");
+             var nextItemCtx = nextItem.getContext('2d');
+             var playGround = document.getElementById("canvas");
+             var playGroundCtx = playGround.getContext('2d');
+             var strArray=['T', 'O', 'S', 'Z', 'I', 'L', 'J'];
+             var randomValue = strArray[Math.floor(Math.random()*strArray.length)];
+             var color = [
+                 null,
+                 'red',
+                 'blue',
+                 'black',
+                 'green',
+                 'gold',
+                 'aqua',
+                 'violet',
+             ]
+             var cnt = 1;
+             
+            
+             //블록제거시 스코어 업데이트
+             function updateScore() {
+               scoreData.innerText=control.score;
+             }
+          
+             /*그려지는 도형을 크기 확장*/
+             playGroundCtx.scale(15, 10);
+             nextItemCtx.scale(40,40);
+            
+             function createMatrix(width,height) {
+                 var matrix = [];
+                 while (height--) {
+                     matrix.push(new Array(width).fill(0));
+                 }
+                 return matrix;
+ 
+             }
+ 
+             function nextPiece(randomValue) {
+                 createPiece(randomValue);
+             }
+ 
+             //여러도형들을 정의
+             //랜덤으로 알파벳을 뽑고 조건문을 통하여 해당 알파벳이라면 해당하는 배열을 리턴한다.
+             //createPiece 함수를 통해 생성한 matrix내 value를 확인하여 도형마다 색깔을 다르게 지정
+             function randomPiece() {
+                 randomValue = strArray[Math.floor(Math.random()*strArray.length)];
+                 // console.log(randomValue);
+                 control.nextmatrix = createPiece(randomValue);
+                 return randomValue;
+             }
+
+             function createPiece(randomValue) {
+                 if(randomValue === 'T') {
+                     return [
+                         [0, 0, 0],
+                         [1, 1, 1],
+                         [0, 1, 0],
+                     ];
+                 }else if(randomValue ==='O' ) {
+                     return [
+                         [2, 2],
+                         [2, 2],
+                     ]
+                 }else if(randomValue ==='S') {
+                     return [
+                         [0, 0, 0],
+                         [0, 3, 3],  
+                         [3, 3, 0],
+                     ]
+                 }else if(randomValue ==='Z') {
+                     return [
+                         [0, 0, 0],
+                         [4, 4, 0],
+                         [0, 4, 4],    
+                     ]
+                 }else if(randomValue === 'I') {
+                     return [
+                         [5, 0, 0, 0],
+                         [5, 0, 0, 0],
+                         [5, 0, 0, 0],
+                         [5, 0, 0 ,0],
+                     ]
+                 }else if(randomValue === 'L') {
+                     return [
+                         [6, 0, 0, 0],
+                         [6, 0, 0, 0],
+                         [6, 0, 0, 0],
+                         [6, 6, 0, 0],
+                     ]
+                 }else if(randomValue=== 'J') {
+                     return [
+                         [0, 7, 0, 0],
+                         [0, 7, 0, 0],
+                         [0, 7, 0, 0],
+                         [7, 7, 0, 0],
+                     ]
+                 }
+             }
+             //블록 제거
+             //블록이 충돌이 일어날 경우 반복문을 활용하여 해당 줄이 채워졌는지 확인해야한다.
+             //playArena의 index가 0이 아닌경우를 찾아서 해당줄을 확인
+             function playArenaSweep() {
+                 var rowcount =1;
+                 outer : for(var y = playArena.length-1; y>0; --y) {
+                             for(var x =0; x < playArena[y].length; ++x) {
+                                 if(playArena[y][x] === 0) {
+                                     continue outer;
+                                 }    
+                             }
+                             var row = playArena.splice(y,1)[0].fill(0);
+                             playArena.unshift(row);
+                             ++y;
+                             control.score += rowcount*1000;
+                             updateScore();
+                         }
+             }
+ 
+             function nextdrawMatrix(matrix) {
+                 matrix.forEach((row, y) => {
+                     row.forEach((value, x) => {
+                         if (value !== 0) {
+                             nextItemCtx.fillStyle = color[value];
+                             /*초기위치*/
+                             nextItemCtx.fillRect(x+1, y, 0.9, 0.9);
+                            
+                         }
+                     });
+                 });
+             }
+             /*떨어지는 도형을 캔버스에 그림*/
+             function drawMatrix(matrix, offset) {
+                 matrix.forEach((row, y) => {
+                     row.forEach((value, x) => {
+                         if (value !== 0) {
+                             playGroundCtx.fillStyle = color[value];
+                             /*초기위치*/
+                            playGroundCtx.fillRect(x+offset.x, y+offset.y,0.9, 0.9);
+                         }
+                     });
+                 });
+             }
+             /*matrix 생성 초기 위치 설정*/
+             var control ={
+                 position : {x:9, y:0},
+                 matrix : null,
+                 nextmatrix : createPiece(randomValue),
+                 score : 0 ,
+                 end : update ,
+             }
+ 
+             function merge(playArena, control) {
+                 control.matrix.forEach((row,y) => {
+                     row.forEach((value,x) => {
+                         if(value !== 0) {
+                             playArena[y+control.position.y]
+                             [x+control.position.x]=value;
+                             //console.log(playArena[y+control.position.y]
+                             //[x+control.position.x]);
+                         }
+                     });
+                 });
+             }
+             /*충돌을 확인하는 함수*/
+             function collide(playArena, control) {
+                 var[m,o] = [control.matrix, control.position]
+                 for(var y =0; y<m.length; ++y) {
+                     for(var x =0; x < m[y].length; ++x) {
+                         if(m[y][x] !== 0 &&
+                             (playArena[y + o.y] &&
+                             playArena[y+o.y][x + o.x])!==0) {
+                                
+                             return true;        
+                         }
+                     }
+                 }
+                 return false;
+             }
+             //matrix가 양쪽 벽에 충돌할 경우 x좌표를 보정하여 계속 하강할 수 있도록 설정
+             function moveMatrix(direction) {
+                 control.position.x += direction;
+                 if(collide(playArena, control)) {
+                     control.position.x -= direction;
+                 }
+             }
+ 
+             function rotateMatrix(direction) {
+                 //매트릭스의 x좌표
+                 var pos = control.position.x;
+                 //변수의 초기화
+                 var offset= 1;
+                 //회전입력시 회전
+                 rotate(control.matrix, direction);
+                 //drop과정 중에 좌우 벽에 충동할 경우 matrix의 위치를 offset만큼 이동
+                 while(collide(playArena,control)) {
+                     control.position.x += offset;
+                     //offset이 0보다 크다면 1을 return, 그렇지 않다면 -1을 return
+                     offset = -(offset+(offset > 0 ? 1 : -1));
+                     if(offset > control.matrix[0].length) {
+                         rotate(control.matrix, -direction);
+                         control.position.x = pos;
+                         return;
+                     }
+                 }
+             }
+             //transpose 기능 활용
+             function rotate(matrix, direction) {
+                 for(var y = 0; y < matrix.length; ++y) {
+                     for(var x = 0; x < y; ++x) {
+                         [
+                             matrix[x][y],
+                             matrix[y][x],
+                         ] = [
+                             matrix[y][x],
+                             matrix[x][y],
+                         ];
+                     }
+                 }
+                matrix.reverse();
+                
+             }
+             function fall() {
+                for(var y = 0; y<playArena.length-1; y++)   {
+                    for(var x = 0; x < playArena[y].length; x++)    {
+                        if(playArena[y][x] === 0)   {
+                            control.position.y++;
+                            if(collide(playArena,control)) {
+                                control.position.y--;    
+                            } 
+                        }
+                    }
+                }
+                dropCounter = 1001;
+             }
+            
+             function drop() {
+                 control.position.y++;
+                  if(collide(playArena,control)) {
+                     control.position.y--;
+                     var k = control.nextmatrix;
+                     merge(playArena,control);
+                     control.matrix=k;
+                     cnt=1;
+                     control.position.y = 0;
+                     control.position.x = 9;
+                     playArenaSweep();
+                      
+                 }
+                 dropCounter=0;
+             }
+             function nextdraw() {
+                 nextItemCtx.fillStyle = '#fff';
+                 nextItemCtx.fillRect(0, 0, nextItem.width, nextItem.height);
+                 nextdrawMatrix(control.nextmatrix,control.position);
+             }
+ 
+             function draw() {
+             /*플레이 화면을 구성*/
+             /*시작점은 x좌표 0, y좌표 0, 초기에 지정한 canvas의 넓이와 높이*/
+                 if(control.matrix === null) {
+                     control.matrix=createPiece(randomPiece());
+                  }else {
+                    
+                     playGroundCtx.fillStyle = '#fff';
+                     playGroundCtx.fillRect(0, 0, playGround.width, playGround.height);
+                     drawMatrix(playArena, {x : 0,y :0});
+                     drawMatrix(control.matrix, control.position);
+                  }
+                
+                
+             }
+             
+             /*현재 시간*/
+             var dropCounter=0;
+             /*떨어지는 간격 1초로 정해두고 1초가 지난순간 y좌표를 증가시키면 이동될거 같다.*/
+             /*이동 후 드롭카운터를 초기화*/
+          
+             /*제약조건
+                 1. matrix의 별다른 충돌이 없다면 해당 도형은 가장 밑까지 떨어지고 난 후 새로운 도형이 나와야한다.
+                 2. 중간에 메트릭스끼리 충돌하게되면 새로운 도형이 나와야한다.
+             */
+ 
+             var dropInterval=1000;
+             var lastTime=0;
+          
+          
+             function update(time=0) {
+                    
+                 var deltaTime = time-lastTime;
+                 lastTime=time;
+                //console.log(deltaTime);
+                 dropCounter += deltaTime;
+                
+                 if(dropCounter > dropInterval) {
+                   drop();
+                    
+                 }
+                 draw();
+                 if(cnt === 1) {
+                     createPiece(randomPiece());
+                     cnt++;
+                 }
+                 nextdraw();
+                 requestAnimationFrame(control.end);
+
+                // for(var y=0; y < playArena.length-1; y++)   {
+                //     for(var x =0; x <playArena[y].length; x++)  {
+                //         if(playArena[0][x] !== 0) {
+                //             control.end=null;
+                //         }
+                //     }
+                // }
+                 
+             }
+             
+ 
+             var playArena = createMatrix(20,15);
+             console.log(playArena); console.table(playArena);
+             var next = createMatrix(6,6);
+             document.addEventListener('keydown',event => {
+                 /*키보드 입력이벤트를 통해 방향키를 누르면 해당 방향으로 해당 블록이 이동
+                 console.log(event);
+                 오른쪽이동 keyCode=39
+                 왼쪽이동 keyCode=37
+                 아래로이동 keyCode=40
+                 키보드 입력 이벤트가 해당 키코드가 입력되면 matrix를 좌우 방향과 아랫 방향으로 움직이도록 설정한다.
+                 */
+                 if(event.keyCode === 37) {
+                     moveMatrix(-1);
+                 }else if(event.keyCode === 39) {
+                     moveMatrix(+1);
+                 }else if(event.keyCode === 40) {
+                     fall();
+                 }else if(event.keyCode === 81) {
+                     rotateMatrix(-1);
+                 }else if(event.keyCode === 87) {
+                     rotateMatrix(+1);
+                 }    
+             }) ;
+            
+            
+             $('#left').click(function(){
+                 moveMatrix(-1);
+             })
+             $('#right').click(function(){
+                 moveMatrix(1);
+             })
+             $('#rotate').click(function(){
+                 rotateMatrix(-1);
+             })
+             $('#down').click(function(){
+                fall();
+            });
+            
+                
+            
+ 
+             updateScore();
+             update();
+            
+ 
+            
+         </script>
+ 
+        
+        
+     </div>
+ </body>
+ <script>
+    
+        
+            
+ </script>
+ 
+ 
+ </html>

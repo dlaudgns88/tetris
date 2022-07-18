@@ -1,0 +1,139 @@
+블록 생성 과정
+    1.  7개의 도형을 2차원 배열로 정의
+    2.  7개의 서로 다른 문자를 배열로 정의
+    3.  문자를 랜덤으로 뽑아 문자 한개당 하나의 2차원 배열을 리턴하도록 설정
+    4.  현재 블록이 생성되면 해당 2차원 배열을 control객체의 matrix에 저장
+    5.  새로운 블록을 생성하여 해당 2차원 배열을 control 객체의 nextMatrix에
+        저장하며 새로운 블럭생성은 1회만 생성되어야 하기 때문에 cnt 변수를 1로 지정하고
+        새로운 블럭생성시 cnt의 value를 변화시켜 새로운 블럭생성이 되지 않도록 설정
+
+게임의 구성
+    1.  게임화면의 컴포넌트로 캔버스를 사용하였고, 해당 캔버스는 내부적으로
+        2차원 구조를 가진 Array를 생성하고 playArena로 정의하고 playArena의 value에 0을 저장
+    2.  블럭이 생성되면 1초마다 Array의 y값을 증가시켜 블럭이 하강되도록 설정
+    3.  블럭이 생성되고 바닥까지 떨어지거나 블록끼리 충돌하게 되면 playArena의 
+        x,y 좌표에 matrix의 value값을 저장
+    4.  playArena의 저장된 value값에 따라서 matrix의 색상을 정해줌    
+    5.  control.nextMatrix의 주소값을 control.matrix로 저장하고 cnt의 value를
+        초기화 시켜 control.matrix가 새로 생성 시 새로운 control.nextMatrix를 생성 
+
+블록 제거 기능
+    1.  게임화면에서 블록이 충돌하여 playArena 캔버스에 그려짐
+    2.  playArena의 y좌표를 역순으로 value값 중 0이 아닌 값을 찾음
+    3.  continue를 사용하여서 해당 y좌표와 x좌표의 value중 0이 있다면 continue
+    4.  계속 진행하고 0이 없다면 해당 줄을 잘라내고 playArena에 새로운 행을 Array의 앞쪽에 추가
+    5.  줄이 없어지게 되면 해당 점수를 control.score에 저장
+    6.  scoreupdate() 함수 호출
+
+블록 회전기능
+    1.  행렬의 transpose 기능을 사용하여 x축과 y축을 변경
+    2.  행렬의 가운데를 기점으로 reverse 시켜주어 matrix가 회전 되도록 설정
+    3.  벽에 닿아서 회전할시 matrix의 x좌표를 회전축 만큼 옴겨주어 해당 matrix가
+        playArena의 범위에서 벗어나지 않도록 설정
+    4.  q버튼의 keycode값을 event를 등록하여 해당 키가 눌릴 시 회전 실행
+    5.  회전 버튼 클릭 이벤트를 등록하여 해당 키가 클릭 시 회전  
+
+블록의 이동기능
+    1.  방향키의 좌우방향의 keycode를 event로 등록하여 해당 키 가 눌릴 경우 좌우로 이동
+    2.   matrix가 playArena의 범위밖으로 벗어나면 x좌표를 수정해주어 playArena범위 밖으로 벗어나지 않도록 설정
+
+
+블록이 쌓이는 기능
+    1.  matrix가 충돌시 matrix의 index를 충돌이 일어난 playArena의 index에 저장
+    2.  value값에 따라서 쌓이는 matrix의 색상 정의
+    3.  쌓인 후 새로운 matrix의 초기위치를 정해주고 drop함수 실행 
+
+
+전역변수
+    scoreData       점수데이터를 저장
+    nextItem        다음 블록을 그려줄 캔버스 정의
+    playGround      현재 블록을 그려줄 캔버스 정의
+    strArray        1차원 배열 7개의 문자를 저장
+                    랜덤함수를 사용하여 1개의 문자를 뽑고
+                    해당 문자를 블록생성함수의 매개변수로 사용하여
+                    1개의 문자마다 1개의 2차원배열구조를 가진 블록을 리턴 
+    randomValue     strArray 배열에서 뽑은 랜덤 문자
+    color           블록마다 각기 다른 색을 가지도록 설정
+    cnt             다음블록을 뽑을 시 제약 조건으로 활용
+                    블록이 생성되고 떨어지게되면 새로운 블록을 생성
+                    cnt값을 증가시켜 더이상 새로운 블록이 생성되지 않도록 함
+                    블록이 다른 블록과 충돌하거나 가장 밑까지 도착할 경우 cnt값을 초기화 시켜 새로운 블록이 생성
+    dropInterval    블록이 떨어지는 주기(1초마다 1칸씩 밑으로 떨어짐)
+    lastTime        블록이 생성되고 지난 시간
+    dropCounter     페이지가  생성된 시간 - 블록이 생성되고 지난시간        
+    playArena       현재 떨어지는 블럭을 그려주는 캔버스(ArrayList로 정의)
+    nextItem        다음 블럭을 그려주는 캔버스(ArrayList로 정의)
+    control         블럭을 컨트롤 해주는 객체
+                    블럭생성 초기위치, 현재블럭, 다음블럭, 점수 정보, 게임종료 를 가지고 있다.
+
+함수
+    updateScore()   
+        블럭 제거 시 점수 업데이트 
+    createMatrix()  
+        캔버스 영역에 Array를 생성하고 해당 Array의 인덱스에 0을 채움
+    nextPiece(randomValue)
+        strArray에서 랜덤으로 뽑은 문자을 매개변수로 사용하여 해당 블록을 리턴
+    randomPiece()
+        strArray에서 랜덤값을 뽑는 함수
+        랜덤값은 control객체의 nextMatrix에 저장
+    createMatrix(randomValue)
+        strArray에서 랜덤으로 뽑은 문자를 조건으로 문자마다 하나의 2차원 배열 리턴
+    playArenaSweep()
+        충돌이 일어날 경우 반복문을 돌며 playArana[y][x] 영역이 0인지 아닌지 확인
+        줄이 채워졌다면 해당 줄을 삭제하고 가장 앞에 행을 추가하고 해당 줄은 0으로 채움
+    nextdrawMatrix(matrix)
+        다음블록을 그려주는 함수
+        다음블록이 생성되면 해당 블록의 value값에 따라서 색상값을 정하고 채워줌
+        콜백함수를 사용하여 해당 이벤트가 발생되었을시 호출
+    drawMatrix(matrix,offset)
+        현재 블록을 그려주는 함수
+        현재 블록이 생성되면 해당 블록의 value값에 따라 색상을 정하고 초기 생성위치를 
+        control 객체의 posion의 x좌표와 y좌표로 생성되는 초기블록의 위치 설정
+        콜백함수 사용하여 해당 이벤트가 발생되었을시 호출
+    merge(playArena,control)       
+        control객체의 value값을 playArena[y][x]의 value값으로 저장
+    collide(playArena,control)
+        블록의 충돌을 확인하는 함수
+        playArana[y][x]가 0이 아니면
+        해당 y좌표가 존재하는지 확인하고 해당 y좌표의 x좌표 의 value값이 0이 아니라면 true 리턴
+        그렇지 않다면 false 리턴
+        true 리턴시 충돌을 감지한 것
+    moveMatrix(direction)
+        현재 블록의 x좌표를 수정하는 함수
+        양쪽 벽에 충돌을 할 경우 direction값을 보정해주어 블록이 양쪽벽을 벗어나지 않도록 설정
+    rotate(matrix, direction)
+        matrix 행렬(블록)을 y좌표와 x좌표를 바꾸어 저장하고 해당 행렬을 가운데를 중심으로 반전시켜줌
+    rotateMatrix(direction)
+        matirx의 회전 시 충돌이 일어날 경우 x좌표를 수정해주어 회전을 하여도 게임화면 바깥으로 벗어나지 않도록 설정     
+    drop()
+        dropCounter > dropInterval 조건이 참일 경우 y좌표를 1씩 증가
+        충돌이 일어날경우 playArena[y][x]의 value에 control.matrix 의 value값을 저장
+        y좌표 초기화
+        cnt값을 초기화 하여 다음블록을 생성할 수 있도록 설정
+        생성될 블럭의 초기위치 저장
+        제가할 줄이 있는지 확인
+
+    draw()
+        현재 생성된 블럭이 있는지 확인하고 블럭이 없다면 블럭 생성
+        블럭이 있는경우엔 playArena의 초기위치에 블럭을 그려줌
+        충돌시 해당 위치에 블럭을 그려줌
+    nextdraw()
+        다음 블럭을 그려줌
+    update()
+        블록이 떨어지는 에니메이션을 구성해주는 함수
+        블록이 떨어지는 주기마다 재호출
+        블록의 드랍, 다음 블럭 생성, 현재 블록과 다음블럭을 그려줌
+    document.addEventListener()
+        키보드가 눌리게되면 해당 keycode값에 따라서 블록의 좌우 이동 및 회전, 하강 을 설정
+    .click(function())
+        해당 Element를 클릭시 블록의 좌우 이동 및 회전 하강을 설정
+    fall()
+        블록을 강제 하강시키는 함수
+        반복문을 통하여 playArena[y][x]의 value가 0인지 확인
+        0이라면 y값을 증가시켜 블록을 하강
+        강제하강 시 블록이 충돌이 일어난다면 matrix의 인덱스만큼 y값을 보정
+        강제 하강 후 dropCounter를 dropInterval보다 높게 설정하여 즉시 다음 블록이 생성되도록 설정    
+
+
+
+
