@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
+    <title>tetris</title>
+</head>
+<style>
+
+</style>
+
+<body>
+    <div id="gameWrap">
+        <canvas id="playGround" width="360px" height="600px"></canvas>
+        <div id="btWrap">
+            <button id= "left">좌</button>
+            <button id= "right">우</button>
+            <button id ="rotate">회전</button>
+            <button id = "down">하강</button>
+        </div>
+    </div>
+    <script src="js/createMatrix.js"></script>
+    <script src="js/randomMatrix.js"></script>
+    <script src="js/sweep.js"></script>
+    <script src="js/draw.js"></script>
+    <script src="js/nextdraw.js"></script>
+    <script src="js/controlMatrix.js"></script>
+    <script src="js/event.js"></script>
+    <script src="js/scoreDraw.js"></script>
+    <script>
+        var canvas = document.getElementById("playGround");
+        var ctx = canvas.getContext('2d');
+    
+        
+        
+        update();
+        
+    </script>
+
+
+</body>
+
+
+</html>

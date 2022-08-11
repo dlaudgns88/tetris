@@ -1,0 +1,29 @@
+#gameWrap {
+    width: 355px;
+    height: auto;
+    border: 1px solid;
+}
+
+#playGround {
+    /* z-index: 0; */
+
+}
+
+/* #nextItemGround {
+    z-index: 1;
+    border: 1px solid;
+} */
+
+#btWrap {
+    width: 355px;
+    height: 80px;
+    border-top: 1px solid;
+
+}
+
+#btWrap button {
+    margin-top: 10px;
+    margin-left: 5px;
+    width: 50px;
+    height: 30px;
+}
